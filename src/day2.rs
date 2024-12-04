@@ -26,9 +26,9 @@ fn check_part1(report: &[u32]) -> bool {
 
 fn check_part2(report: &[u32]) -> bool {
     if check_part1(report) {
-        return true
+        return true;
     } else {
-        for i in  0..report.len(){
+        for i in 0..report.len() {
             let mut report_clone = report.to_owned();
             report_clone.remove(i);
             if check_part1(&report_clone) {
@@ -57,7 +57,7 @@ pub fn part2(input: &str) -> u32 {
 mod test {
     use super::*;
     #[test]
-    fn test1() {
+    fn test_day2_part1() {
         let input = "7 6 4 2 1
 1 2 7 8 9
 9 7 6 2 1
@@ -67,7 +67,7 @@ mod test {
         assert_eq!(part1(input), 2)
     }
     #[test]
-    fn test2() {
+    fn test_day2_part2() {
         let input = "7 6 4 2 1
 1 2 7 8 9
 9 7 6 2 1

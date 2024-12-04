@@ -59,7 +59,7 @@ pub fn part2(input: &str) -> u32 {
 mod test {
     use super::*;
     #[test]
-    fn test1() {
+    fn test_day1_part1() {
         let input = "3   4
 4   3
 2   5
@@ -71,7 +71,7 @@ mod test {
 }
 
 #[test]
-fn test2() {
+fn day_1_part2() {
     let input = "3   4
 4   3
 2   5
