@@ -1,5 +1,11 @@
 use nom::{
-    branch::alt, bytes::{complete::tag}, character::complete::{self, anychar}, combinator::value, multi::{many1, many_till}, sequence::{delimited, separated_pair}, IResult, Parser
+    branch::alt,
+    bytes::complete::tag,
+    character::complete::{self, anychar},
+    combinator::value,
+    multi::{many1, many_till},
+    sequence::{delimited, separated_pair},
+    IResult, Parser,
 };
 
 #[derive(Clone, PartialEq, Eq)]
@@ -9,8 +15,7 @@ enum Instruction {
     Dont,
 }
 
-
-fn mul(input: &str) ->IResult<&str, Instruction>{
+fn mul(input: &str) -> IResult<&str, Instruction> {
     let (input, _) = tag("mul")(input)?;
     let (input, pair) = delimited(
         tag("("),
@@ -35,39 +40,32 @@ fn parse(input: &str) -> IResult<&str, Vec<Instruction>> {
 #[aoc(day3, part1)]
 fn part1(input: &str) -> u32 {
     let (_input, instructions) = parse(input).expect("error en parser");
-    instructions
-        .iter()
-        .fold(0, |acc, ins|{
-            match ins {
-                Instruction::Mul(a,b ) => {acc + a*b},
-                _ => acc,
-            }
-        })
+    instructions.iter().fold(0, |acc, ins| match ins {
+        Instruction::Mul(a, b) => acc + a * b,
+        _ => acc,
+    })
 }
 #[aoc(day3, part2)]
-fn part2(input: &str)->u32{
-    let(_input, instructions) = parse(input).expect("deberia parsear");
+fn part2(input: &str) -> u32 {
+    let (_input, instructions) = parse(input).expect("deberia parsear");
     let mut state = Instruction::Do;
-    instructions.iter().fold(0,|acc, ins|{
-        match ins {
-            Instruction::Mul(a, b, ) => {
-                if state == Instruction::Do{
-                    acc + a*b
-                } else{
-                    acc
-                }
-            }
-            Instruction::Do => {
-                state = Instruction::Do;
-                acc
-            }
-            Instruction::Dont => {
-                state = Instruction::Dont;
+    instructions.iter().fold(0, |acc, ins| match ins {
+        Instruction::Mul(a, b) => {
+            if state == Instruction::Do {
+                acc + a * b
+            } else {
                 acc
             }
         }
+        Instruction::Do => {
+            state = Instruction::Do;
+            acc
+        }
+        Instruction::Dont => {
+            state = Instruction::Dont;
+            acc
+        }
     })
-
 }
 
 #[cfg(test)]
@@ -81,8 +79,8 @@ mod test {
     }
 
     #[test]
-    fn test_day3_part2(){
-        let input= "xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))";
+    fn test_day3_part2() {
+        let input = "xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))";
         assert_eq!(part2(input), 48)
     }
 }
