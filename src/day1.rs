@@ -71,7 +71,7 @@ mod test {
 }
 
 #[test]
-fn day_1_part2() {
+fn test_day_1_part2() {
     let input = "3   4
 4   3
 2   5
