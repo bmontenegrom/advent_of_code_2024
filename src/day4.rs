@@ -1,5 +1,3 @@
-
-
 const DIRECTIONS: [(i32, i32); 8] = [
     (0, 1),
     (1, 0),
@@ -10,7 +8,6 @@ const DIRECTIONS: [(i32, i32); 8] = [
     (1, -1),
     (-1, 1),
 ];
-
 
 const MAS: [char; 3] = ['M', 'A', 'S'];
 
@@ -32,62 +29,71 @@ fn process_input(input: &str) -> (Vec<(usize, usize)>, Vec<Vec<char>>) {
     )
 }
 
-fn check_diagonal1(coord: ( usize, usize), grid: &[Vec<char>]) -> bool{
-    let (y , x) = coord;
-    if let Some(fila) = grid.get(y+1) {
-        if let Some(c) = fila.get(x+1) {
+fn check_diagonal1(coord: (usize, usize), grid: &[Vec<char>]) -> bool {
+    let (y, x) = coord;
+    if let Some(fila) = grid.get(y + 1) {
+        if let Some(c) = fila.get(x + 1) {
             match c {
                 'S' => {
-                    if x > 0 && y > 0{
-                        return *grid.get(y-1).expect("deberia existir la fila").get(x-1).expect("deberia existir el caracter") == 'M' ;
-                    } else {
-                        return false
-                    }
-                }
-                'M' => {
-                    if x > 0 && y > 0{
-                        return *grid.get(y-1).expect("deberia existir la fila").get(x-1).expect("deberia existir el caracter") == 'S' ;
+                    if x > 0 && y > 0 {
+                        return *grid
+                            .get(y - 1)
+                            .expect("deberia existir la fila")
+                            .get(x - 1)
+                            .expect("deberia existir el caracter")
+                            == 'M';
                     } else {
                         return false;
                     }
                 }
-                _=> return false,
-            }
-        }
-    }
- false
-}
-
-fn check_diagonal2(coord: ( usize, usize), grid: &[Vec<char>]) -> bool{
-    let (y , x) = coord;
-    if y > 0{
-        if let Some(c) = grid.get(y-1).expect("deberia existir la fila").get(x+1){
-            match c {
-                'S' =>{
-                    if let Some(fila) = grid.get(y+1) {
-                        if x > 0{
-                            return *fila.get(x-1).expect("deberia existir el char") == 'M';
-                        } else {
-                            return false;
-                        }
-                    }
-                }
                 'M' => {
-                    if let Some(fila) = grid.get(y+1) {
-                        if x > 0{
-                            return *fila.get(x-1).expect("deberia existir el char") == 'S';
-                        } else {
-                            return false;
-                        }
+                    if x > 0 && y > 0 {
+                        return *grid
+                            .get(y - 1)
+                            .expect("deberia existir la fila")
+                            .get(x - 1)
+                            .expect("deberia existir el caracter")
+                            == 'S';
+                    } else {
+                        return false;
                     }
                 }
-                _=> return false,
+                _ => return false,
             }
         }
     }
     false
 }
 
+fn check_diagonal2(coord: (usize, usize), grid: &[Vec<char>]) -> bool {
+    let (y, x) = coord;
+    if y > 0 {
+        if let Some(c) = grid.get(y - 1).expect("deberia existir la fila").get(x + 1) {
+            match c {
+                'S' => {
+                    if let Some(fila) = grid.get(y + 1) {
+                        if x > 0 {
+                            return *fila.get(x - 1).expect("deberia existir el char") == 'M';
+                        } else {
+                            return false;
+                        }
+                    }
+                }
+                'M' => {
+                    if let Some(fila) = grid.get(y + 1) {
+                        if x > 0 {
+                            return *fila.get(x - 1).expect("deberia existir el char") == 'S';
+                        } else {
+                            return false;
+                        }
+                    }
+                }
+                _ => return false,
+            }
+        }
+    }
+    false
+}
 
 fn process_input_part2(input: &str) -> (Vec<(usize, usize)>, Vec<Vec<char>>) {
     let y_max = input.lines().count();
@@ -136,18 +142,15 @@ fn part1(input: &str) -> u32 {
     })
 }
 
-
-
 #[aoc(day4, part2)]
-fn part2(input: &str)->u32{
+fn part2(input: &str) -> u32 {
     let (pos_a, grid) = process_input_part2(input);
-    pos_a.iter().fold(0, |mut acc, (y, x)|{
-        if check_diagonal1((*y, *x), &grid) && check_diagonal2((*y, *x), &grid){
-            acc +=1;
+    pos_a.iter().fold(0, |mut acc, (y, x)| {
+        if check_diagonal1((*y, *x), &grid) && check_diagonal2((*y, *x), &grid) {
+            acc += 1;
         }
         acc
     })
- 
 }
 #[cfg(test)]
 mod test {
@@ -168,7 +171,7 @@ MXMXAXMASX";
     }
 
     #[test]
-    fn test_day4_part2(){
+    fn test_day4_part2() {
         let input = "MMMSXXMASM
 MSAMXMSMSA
 AMXSXMAAMM
