@@ -7,12 +7,12 @@ fn parse_day5(input: &str) -> (HashMap<u32, Vec<u32>>, Vec<Vec<u32>>) {
         .expect("deberia haber reglas y paginas");
     let map =rules
         .lines()
-        .fold(HashMap::new(), |mut acc, l| {
+        .fold(HashMap::new(), |mut acc : HashMap<u32, Vec<u32>>, l| {
             let (first, second) = l
                 .split_once("|")
                 .expect("deberia haber numeros separados por |");
             acc.entry(first.parse::<u32>().expect("deberia ser un numero"))
-                .or_insert_with(Vec::new)
+                .or_default()
                 .push(second.parse::<u32>().expect("deberia ser un numero"));
             acc
         });
