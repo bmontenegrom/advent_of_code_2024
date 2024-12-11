@@ -11,19 +11,39 @@ impl Point {
     }
 
     fn get_antinode(&self, other: &Point) -> (Point, Point) {
-        let x_max = self.x.max(other.x);
-        let y_max = self.y.max(other.y);
-        let x_min = self.x.min(other.x);
-        let y_min = self.y.min(other.y);
-        let point_1 = Point::new(
-            x_max + self.x.abs_diff(other.x) as isize,
-            y_max + self.y.abs_diff(other.y) as isize,
-        );
-        let point_2 = Point::new(
-            x_min - self.x.abs_diff(other.x) as isize,
-            y_min - self.y.abs_diff(other.y) as isize,
-        );
-        (point_1, point_2)
+        let x_dif = self.x - other.x;
+        let y_dif = self.y - other.y;
+        (
+            Point {
+                x: other.x - x_dif,
+                y: other.y - y_dif,
+            },
+            Point {
+                x: self.x + x_dif,
+                y: self.y + y_dif,
+            },
+        )
+    }
+
+    fn get_all_antinodes(&self, other: &Point, x_max: isize, y_max: isize) -> Vec<Point> {
+        let x_dif = self.x - other.x;
+        let y_dif = self.y - other.y;
+        let mut res = vec![];
+        let mut x = self.x;
+        let mut y = self.y;
+        while x < x_max && y < y_max && x >= 0 && y >= 0 {
+            res.push(Point { x, y });
+            x += x_dif;
+            y += y_dif;
+        }
+        x = other.x;
+        y = other.y;
+        while x >= 0 && y >= 0 && x < x_max && y < y_max {
+            res.push(Point { x, y });
+            x -= x_dif;
+            y -= y_dif;
+        }
+        res
     }
 }
 
@@ -31,10 +51,10 @@ fn parse_day8(input: &str) -> (Vec<Vec<char>>, HashMap<char, Vec<Point>>) {
     let map = input
         .lines()
         .zip(0_isize..)
-        .fold(HashMap::new(), |mut acc, (l, i)| {
+        .fold(HashMap::new(), |mut acc: HashMap<char, Vec<Point>>  , (l, i)| {
             l.chars().zip(0_isize..).for_each(|(c, j)| {
                 if c != '.' {
-                    acc.entry(c).or_insert_with(Vec::new).push(Point::new(j, i));
+                    acc.entry(c).or_default().push(Point::new(j, i));
                 }
             });
             acc
@@ -43,6 +63,7 @@ fn parse_day8(input: &str) -> (Vec<Vec<char>>, HashMap<char, Vec<Point>>) {
     (grid, map)
 }
 
+#[aoc(day8, part1)]
 fn day8_part1(input: &str) -> u32 {
     let (grid, map) = parse_day8(input);
     let x_max = grid[0].len() as isize;
@@ -50,10 +71,8 @@ fn day8_part1(input: &str) -> u32 {
     let mut vistos = vec![];
     map.keys().fold(0, |mut acc, c| {
         let mut points = map.get(c).expect("deberia existir").clone();
-        while !points.is_empty() {
-            let actual = points.pop().expect("deberia existir");
+        while let Some(actual)= points.pop() {
             points.iter().for_each(|p| {
-                println!("actual: {:?} p: {:?}", actual, p);
                 let (point_1, point_2) = actual.get_antinode(p);
                 if point_1.x >= 0
                     && point_1.x < x_max
@@ -61,7 +80,6 @@ fn day8_part1(input: &str) -> u32 {
                     && point_1.y < y_max
                     && !vistos.contains(&point_1)
                 {
-                    println!("{:?}", point_1);
                     vistos.push(point_1);
                     acc += 1;
                 }
@@ -71,10 +89,33 @@ fn day8_part1(input: &str) -> u32 {
                     && point_2.y < y_max
                     && !vistos.contains(&point_2)
                 {
-                    println!("{:?}", point_2);
                     vistos.push(point_2);
                     acc += 1;
                 }
+            });
+        }
+        acc
+    })
+}
+
+
+#[aoc(day8, part2)]
+fn day8_part2(input: &str) -> u32 {
+    let (grid, map) = parse_day8(input);
+    let x_max = grid[0].len() as isize;
+    let y_max = grid.len() as isize;
+    let mut vistos = vec![];
+    map.keys().fold(0, |mut acc, c| {
+        let mut points = map.get(c).expect("deberia existir").clone();
+        while let Some(actual) = points.pop() {
+            points.iter().for_each(|p| {
+                let antinodes = actual.get_all_antinodes(p, x_max, y_max);
+                antinodes.iter().for_each(|p| {
+                    if !vistos.contains(p) {
+                        vistos.push(*p);
+                        acc += 1;
+                    }
+                });
             });
         }
         acc
@@ -103,5 +144,22 @@ mod tests {
         // println!("{:?}", grid);
         // println!("{:?}", map);
         assert_eq!(day8_part1(input), 14);
+    }
+
+    #[test]
+    fn test_day8_part2() {
+        let input = "............
+........0...
+.....0......
+.......0....
+....0.......
+......A.....
+............
+............
+........A...
+.........A..
+............
+............";
+        assert_eq!(day8_part2(input), 34);
     }
 }
