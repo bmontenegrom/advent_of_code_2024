@@ -23,16 +23,16 @@ impl Block {
         let id = index/2;
         if ftype == FType::File {
             Block {
-                ftype: ftype,
-                id: id,
+                ftype,
+                id,
                 used: size,
                 free: 0,
                 data: vec![id; size],
             }
         } else {
             Block {
-                ftype: ftype,
-                id: id,
+                ftype,
+                id,
                 used: 0,
                 free: size,
                 data: Vec::new(),
@@ -119,10 +119,7 @@ fn day9_part1(input: &str) -> usize {
         }
     }
     disco.iter().enumerate().filter_map(|(i, d)| {
-        match d {
-            Some(x) => Some(*x * i),
-            None => None,
-        }
+        d.as_ref().map(|x| *x * i)
     }).sum()
 
 }
