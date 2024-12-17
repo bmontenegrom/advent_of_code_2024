@@ -42,6 +42,16 @@ impl Block {
 }
 
 
+
+
+
+
+fn parse_day9_part2(input: &str)-> Vec<Block>{
+    input.chars().map(|c| c.to_digit(10).expect("deberia ser digito")).enumerate().map(|(i, d)| {
+        Block::new(i, d as usize)
+    }).collect()
+}
+
 fn parse_day9_input(input: &str) ->Vec<Option<usize>>{
     input.chars().map(|c| c.to_digit(10).expect("deberia ser digito")).enumerate().fold(Vec::new(), |mut acc, (i, d)| {
         if i % 2 == 0{
@@ -82,16 +92,13 @@ fn day9_part2(input: &str)->usize{
             disco[right].data.clear();
         }
     }
+    disco.iter().flat_map(|b|{
+        b.data.iter().cloned().chain(std::iter::repeat(0).take(b.free))
+    }).enumerate().fold(0, |mut acc, (i, x)|{
+        acc += x * i;
+        acc
+    })
     
-    todo!()
-}
-
-
-
-fn parse_day9_part2(input: &str)-> Vec<Block>{
-    input.chars().map(|c| c.to_digit(10).expect("deberia ser digito")).enumerate().map(|(i, d)| {
-        Block::new(i, d as usize)
-    }).collect()
 }
 
 
@@ -134,8 +141,8 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_part2(){
+    fn test_day9_part2(){
         let input =  "2333133121414131402";
-        println!("{:?}", parse_day9_part2(input));
+        assert_eq!(day9_part2(input), 2858);
     }
 }
