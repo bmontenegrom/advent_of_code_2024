@@ -37,7 +37,7 @@ impl Point {
     }
 
     fn vecinos(&self, grid: &[Vec<char>]) -> Vec<Point> {
-        let directions = vec![(0, 1), (0, -1), (1, 0), (-1, 0)];
+        let directions = [(0, 1), (0, -1), (1, 0), (-1, 0)];
         directions.iter().fold(vec![], |mut acc, (dx, dy)| {
             let new_point = Point::new(self.x + dx, self.y + dy);
             if new_point.is_valid(grid)
