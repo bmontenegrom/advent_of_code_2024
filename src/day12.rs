@@ -6,18 +6,21 @@ struct Point {
 
 #[derive(Debug)]
 struct Region {
-    //points: Vec<Point>,
     area: usize,
     perimeter: usize,
     sides: usize,
 }
 
-impl Region{
-    fn new(points: &[Point], grid: &[Vec<char>] ) -> Self{
+impl Region {
+    fn new(points: &[Point], grid: &[Vec<char>]) -> Self {
         let area = points.len();
         let perimeter = points.iter().map(|p| 4 - p.vecinos(grid).len()).sum();
         let sides = points.iter().map(|p| p.corners(grid)).sum();
-        Region{ area, perimeter, sides}
+        Region {
+            area,
+            perimeter,
+            sides,
+        }
     }
 }
 
@@ -34,55 +37,63 @@ impl Point {
     }
 
     fn vecinos(&self, grid: &[Vec<char>]) -> Vec<Point> {
-        let mut res = vec![];
         let directions = vec![(0, 1), (0, -1), (1, 0), (-1, 0)];
-        for (dx, dy) in directions {
+        directions.iter().fold(vec![], |mut acc, (dx, dy)| {
             let new_point = Point::new(self.x + dx, self.y + dy);
             if new_point.is_valid(grid)
                 && grid[new_point.y as usize][new_point.x as usize]
                     == grid[self.y as usize][self.x as usize]
             {
-                res.push(new_point);
+                acc.push(new_point);
             }
-        }
-        res
+            acc
+        })
     }
 
     fn corners(&self, grid: &[Vec<char>]) -> usize {
-        let corners = [[
-            Point::new(self.x - 1, self.y -1),
-            Point::new(self.x, self.y - 1),           
-            Point::new(self.x - 1, self.y),
-        ],
-        [
-            Point::new(self.x + 1, self.y -1),
-            Point::new(self.x, self.y -1),
-            Point::new(self.x + 1, self.y),
-        ],
-        [
-            Point::new(self.x + 1, self.y + 1),
-            Point::new(self.x, self.y + 1),
-            Point::new(self.x + 1, self.y),
-        ],
-        [
-            Point::new(self.x - 1, self.y + 1),
-            Point::new(self.x, self.y + 1),
-            Point::new(self.x - 1, self.y),
-        ]];
+        let corners = [
+            [
+                Point::new(self.x - 1, self.y - 1),
+                Point::new(self.x, self.y - 1),
+                Point::new(self.x - 1, self.y),
+            ],
+            [
+                Point::new(self.x + 1, self.y - 1),
+                Point::new(self.x, self.y - 1),
+                Point::new(self.x + 1, self.y),
+            ],
+            [
+                Point::new(self.x + 1, self.y + 1),
+                Point::new(self.x, self.y + 1),
+                Point::new(self.x + 1, self.y),
+            ],
+            [
+                Point::new(self.x - 1, self.y + 1),
+                Point::new(self.x, self.y + 1),
+                Point::new(self.x - 1, self.y),
+            ],
+        ];
 
-        corners.iter().filter(|corner|{
-            let esquina = grid.get(corner[0].y as usize).and_then(|l| l.get(corner[0].x as usize));
-            let a = grid.get(corner[1].y as usize).and_then(|l| l.get(corner[1].x as usize));
-            let b = grid.get(corner[2].y as usize).and_then(|l| l.get(corner[2].x as usize));
-            let char = grid.get(self.y as usize).and_then(|l| l.get(self.x as usize));
-            (char != a && char != b) || (char == b && char == a && char != esquina)
-
-        }).count()
+        corners
+            .iter()
+            .filter(|corner| {
+                let esquina = grid
+                    .get(corner[0].y as usize)
+                    .and_then(|l| l.get(corner[0].x as usize));
+                let a = grid
+                    .get(corner[1].y as usize)
+                    .and_then(|l| l.get(corner[1].x as usize));
+                let b = grid
+                    .get(corner[2].y as usize)
+                    .and_then(|l| l.get(corner[2].x as usize));
+                let char = grid
+                    .get(self.y as usize)
+                    .and_then(|l| l.get(self.x as usize));
+                (char != a && char != b) || (char == b && char == a && char != esquina)
+            })
+            .count()
     }
-    
 }
-
-
 
 fn parse_day12(input: &str) -> Vec<Vec<char>> {
     input.lines().map(|l| l.chars().collect()).collect()
@@ -119,7 +130,6 @@ fn day12_part1(input: &str) -> usize {
     regiones.iter().map(|r| r.area * r.perimeter).sum()
 }
 
-
 #[aoc(day12, part2)]
 fn day12_part2(input: &str) -> usize {
     let grid = parse_day12(input);
@@ -143,17 +153,9 @@ VVIIICJJEE
 MIIIIIJJEE
 MIIISIJEEE
 MMMISSJEEE";
-        // let grid = parse_day12(input);
-        // for l in &grid {
-        //     println!("{:?}", l);
-        // }
-        // let regiones = regiones(&grid);
-        // for r in &regiones {
-        //     println!("{:?}", r);
-        // }
         assert_eq!(day12_part1(input), 1930);
     }
-    
+
     #[test]
     fn test_part2() {
         let input = "RRRRIICCFF
@@ -166,14 +168,6 @@ VVIIICJJEE
 MIIIIIJJEE
 MIIISIJEEE
 MMMISSJEEE";
-        // let grid = parse_day12(input);
-        // for l in &grid {
-        //     println!("{:?}", l);
-        // }
-        // let regiones = regiones(&grid);
-        // for r in &regiones {
-        //     println!("{:?}", r);
-        // }
         assert_eq!(day12_part2(input), 1206);
     }
 }
