@@ -4,12 +4,14 @@ use nom::{
     bytes::complete::tag, character::complete::{self, line_ending, space1}, multi::separated_list1, sequence::{preceded, separated_pair}, IResult, Parser
 };
 
+use itertools::Itertools;
+
 
 const X_MAX: i32 = if cfg!(test) { 11 } else { 101 };
 const Y_MAX: i32 = if cfg!(test) { 7 } else { 103 };
 
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 struct Point {
     x: i32,
     y: i32,
@@ -100,7 +102,25 @@ fn day14_part1(input: &str) -> i32 {
     
 }
 
+//condicion turbia sacada de internet
+#[aoc(day14, part2)]
+fn day14_part2(input: &str) -> i32 {
+    let (_, mut robots) = parse_day13(input).unwrap();
+    let mut i = 0;
+    loop {
+        robots.iter_mut().for_each(|robot| robot.step(1, X_MAX, Y_MAX));
+        i += 1;
+        if tree_test(&robots) {
+            break i;
+        }
+    }
+    
+}
 
+
+fn tree_test(robots: &[Robot]) -> bool {
+    robots.iter().map(|Robot{position, ..}|position).all_unique()
+}
 
 #[cfg(test)]
 mod tests {
