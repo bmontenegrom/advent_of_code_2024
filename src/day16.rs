@@ -2,7 +2,7 @@
 
 
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 enum Direction {
     Up,
     Down,
@@ -117,7 +117,7 @@ impl Grid {
             .filter_map(|dir| {
                 let neighbor = value.point.get_neighbor(dir.clone());
                 let mut path = value.path.clone();
-                path.push(value.point.clone());
+                path.push(neighbor.clone());
                 if self.grid[neighbor.y as usize][neighbor.x as usize] == '#' || direction == dir.opposite() {
                     return None;
                 }
@@ -134,32 +134,27 @@ impl Grid {
     fn find_path(&mut self) {
         let mut visited = std::collections::HashMap::new();
         let mut queue = std::collections::BinaryHeap::new();
-        let mut paths = vec![];
         queue.push(Values::new(self.start.clone(), 0, Direction::Right, vec![self.start.clone()]));
         while let Some(value) = queue.pop() {
-            if value.point == self.end && value.distance < self.distance {
-                
+            if value.point == self.end && value.distance <= self.distance {
                 self.distance = value.distance;
-                paths = vec![value.path.clone()];
-                
-            } else if value.point == self.end && value.distance == self.distance {
-                paths.push(value.path.clone());
-                
+                self.paths.push(value.path);
+                continue;
             }
-            if let Some(visited_value) = visited.get(&value.point) {
-                if value.distance > *visited_value {
+            if let Some(&dist) = visited.get(&(value.point.clone(), value.direction)) {
+                if value.distance > dist {
                     continue;
                 } 
+            } else {
+                visited.insert((value.point.clone(), value.direction), value.distance);
             }
-            visited.insert(value.point.clone(), value.distance);
-            self.neighbors(&value.clone(), value.direction)
-                .iter()
-                .for_each(|neighbor| {
-                    queue.push(neighbor.clone());
-                });
+            
+            let neighbors = self.neighbors(&value.clone(), value.direction);
+            neighbors.iter().for_each(|neighbor| {
+                queue.push(neighbor.clone());
+            });
         }
-        self.paths = paths;
-        println!("paths: {:?}", self.paths);
+            
     }
 }
 
@@ -168,6 +163,13 @@ fn day16_part1(input: &str) -> usize {
     let mut grid = Grid::new(input);
     grid.find_path();
     grid.distance    
+}
+
+#[aoc(day16, part2)]
+fn day16_part2(input: &str) -> usize {
+    let mut grid = Grid::new(input);
+    grid.find_path();
+    grid.paths.iter().flatten().collect::<std::collections::HashSet<_>>().len()
 }
 
 #[cfg(test)]
@@ -233,7 +235,7 @@ mod tests {
     }
 
     #[test]
-    fn test_day16_paths() {
+    fn test_day16_part2() {
                 let input = "###############
 #.......#....E#
 #.#.###.#.###.#
@@ -249,9 +251,28 @@ mod tests {
 #.###.#.#.#.#.#
 #S..#.....#...#
 ###############";
-        let mut grid = Grid::new(input);
-        grid.find_path();
-        let cant = grid.paths.iter().flatten().collect::<std::collections::HashSet<_>>().len();
-        println!("cantidad de puntos: {}",cant );
+        assert_eq!(45, day16_part2(input));
+    }
+
+    #[test]
+    fn test_day16_part2_2() {
+                let input = "#################
+#...#...#...#..E#
+#.#.#.#.#.#.#.#.#
+#.#.#.#...#...#.#
+#.#.#.#.###.#.#.#
+#...#.#.#.....#.#
+#.#.#.#.#.#####.#
+#.#...#.#.#.....#
+#.#.#####.#.###.#
+#.#.#.......#...#
+#.#.###.#####.###
+#.#.#...#.....#.#
+#.#.#.#####.###.#
+#.#.#.........#.#
+#.#.#.#########.#
+#S#.............#
+#################";
+        assert_eq!(64, day16_part2(input));
     }
 }
